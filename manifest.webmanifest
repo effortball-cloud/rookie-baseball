@@ -1,0 +1,28 @@
+{
+  "name": "ROOKIE 루키 — 야구 입문 프로젝트",
+  "short_name": "ROOKIE",
+  "description": "매일 10분, 게임으로 배우는 야구. 상황 판정·상식 퀴즈·통산기록 대결. English mode included.",
+  "lang": "ko",
+  "dir": "ltr",
+  "start_url": "./?src=pwa",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait",
+  "background_color": "#0d1a13",
+  "theme_color": "#0d1a13",
+  "categories": ["games", "education", "sports"],
+  "icons": [
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "screenshots": [
+    { "src": "./preview.png", "sizes": "1200x630", "type": "image/png", "form_factor": "wide" }
+  ],
+  "shortcuts": [
+    { "name": "오늘의 판정", "short_name": "판정", "url": "./?p=%EC%98%A4%EB%8A%98%EC%9D%98%ED%8C%90%EC%A0%95.html", "icons": [{ "src": "./icon-192.png", "sizes": "192x192" }] },
+    { "name": "오늘의 기록왕", "short_name": "기록왕", "url": "./?p=%EC%98%A4%EB%8A%98%EC%9D%98%EA%B8%B0%EB%A1%9D%EC%99%95.html", "icons": [{ "src": "./icon-192.png", "sizes": "192x192" }] },
+    { "name": "KBO 티켓 예매 가이드", "short_name": "티켓", "url": "./?p=%ED%8B%B0%EC%BC%93%EC%98%88%EB%A7%A4.html", "icons": [{ "src": "./icon-192.png", "sizes": "192x192" }] }
+  ]
+}

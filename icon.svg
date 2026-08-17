@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs><radialGradient id="bg" cx="50%" cy="8%" r="120%">
+    <stop offset="0" stop-color="#245b3f"/><stop offset="1" stop-color="#0d1a13"/></radialGradient></defs>
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <g transform="translate(256.0,184.3) scale(1.804)">
+  <g transform="translate(0,0)">
+    <circle r="33" fill="#fff"/>
+    <path d="M-20.5,-25 C-8,-9 -8,9 -20.5,25" stroke="#c9333f" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+    <path d="M20.5,-25 C8,-9 8,9 20.5,25" stroke="#c9333f" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+    <g stroke="#c9333f" stroke-width="2.1" stroke-linecap="round">
+      <path d="M-16.5,-16.5 l-5,2"/><path d="M-13.5,-6.5 l-6,1.4"/><path d="M-13.5,6.5 l-6,-1.4"/><path d="M-16.5,16.5 l-5,-2"/>
+      <path d="M16.5,-16.5 l5,2"/><path d="M13.5,-6.5 l6,1.4"/><path d="M13.5,6.5 l6,-1.4"/><path d="M16.5,16.5 l5,-2"/>
+    </g>
+  </g></g>
+  <text x="256.0" y="337.9" text-anchor="middle"
+    font-family="'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif"
+    font-size="81.0" font-weight="800" letter-spacing="4.4" fill="#fff">ROOKIE</text>
+  <g transform="translate(256.0,432.6) scale(1.320)">
+    <path d="M-34,-13 h68 v13 l-34,14 l-34,-14 Z" fill="#1c7c4a"/>
+    <text x="0" y="4" text-anchor="middle"
+      font-family="'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif"
+      font-size="17" font-weight="800" fill="#eaf6ee">루키</text>
+  </g>
+</svg>
