@@ -1,5 +1,5 @@
 /* ROOKIE service worker — 캐시 우선(즉시 열림) + 백그라운드 갱신 */
-const VERSION = '2b8daa826627';
+const VERSION = '7526ee23065c';
 const CACHE   = 'rookie-' + VERSION;
 const ASSETS  = ['./', './index.html', './manifest.webmanifest', './preview.png',
                  './icon-192.png', './icon-512.png', './icon-maskable-512.png',
