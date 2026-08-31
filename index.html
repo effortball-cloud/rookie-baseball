@@ -246,7 +246,11 @@ var GAMES_GUARD={'무한타석.html':1,'오늘의판정.html':1,'오늘의퀴즈
                  '오늘의기록왕.html':1,'커넥션.html':1,'십자말풀이.html':1};
 /* 뒤로가기 — 화면과 상관없이 항상 '버퍼 한 칸' 위에 머문다.
    게임 중: 1회 안내 → 2회 홈 / 홈: 1회 안내 → 2회 앱 종료 (합쳐서 4회) */
-var STEP=0, stepAt=0;
+var STEP=0, stepAt=0, EXITING=false, exitTries=0;
+function leaveApp(){                 /* 브라우저가 만든 여분 기록까지 지나 앱 밖으로 */
+  EXITING=true; exitTries=0;
+  setTimeout(function(){try{history.back();}catch(e){}},0);
+}
 function pushBuf(){try{history.pushState({rk:1},'');}catch(e){}}
 function armed(now){return STEP===1&&now-stepAt<3500;}
 function arm(now,msg){STEP=1;stepAt=now;pushBuf();showGuard(msg);}
@@ -258,6 +262,11 @@ function show(n){
 }
 window.addEventListener('popstate',function(){
   var now=Date.now();
+  if(EXITING){                       /* 나가는 중 — 남은 기록을 계속 밟고 지나간다 */
+    if(exitTries++<3){setTimeout(function(){try{history.back();}catch(e){}},0);}
+    else{EXITING=false;pushBuf();}   /* 못 나가면 원래대로 되돌린다 */
+    return;
+  }
   if(CUR!=='홈.html'){
     if(GAMES_GUARD[CUR]&&!armed(now)){
       arm(now,'🔙 한 번 더 누르면 게임에서 나갑니다');
@@ -269,10 +278,7 @@ window.addEventListener('popstate',function(){
     arm(now,'🔙 한 번 더 누르면 앱이 닫혀요');
     return;
   }
-  STEP=0; hideGuard();
-  /* 여기서만 버퍼를 다시 만들지 않는다 — 남은 기록을 소비해 앱 밖으로 나간다.
-     popstate 처리 도중에 곧바로 부르면 브라우저가 무시하므로 한 박자 미룬다 */
-  setTimeout(function(){try{history.back();}catch(e){}},0);
+  STEP=0; hideGuard(); leaveApp();
 });
 function hideGuard(){
   var g=document.getElementById('backguard');
