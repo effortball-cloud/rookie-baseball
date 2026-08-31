@@ -229,9 +229,19 @@ const PAGES={"홈.html": "PCFkb2N0eXBlIGh0bWw+DQo8aHRtbCBsYW5nPSJrbyI+DQo8aGVhZD
 function dec(b){const s=atob(b),u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return new TextDecoder('utf-8').decode(u);}
 const NAV='<scr'+'ipt>document.addEventListener("click",function(e){parent.postMessage({rookieTap:1},"*");var t=e.target;var a=t&&t.closest?t.closest("a"):null;if(!a)return;var h=a.getAttribute("href")||"";if(h.slice(-5)===".html"){e.preventDefault();parent.postMessage({rookieNav:h},"*");}},true);</scr'+'ipt>';
 var CUR='홈.html';
-function render(n){if(!PAGES[n])return;CUR=n;document.getElementById('f').srcdoc=dec(PAGES[n])+NAV;}
-/* 뒤로가기 한 번이면 게임 홈으로, 홈에서 한 번 더 눌러야 앱이 닫힌다.
-   게임을 옮겨 다녀도 깊이는 늘 1이라 뒤로가기가 여러 번 필요해지지 않는다. */
+/* 화면 그리기 — srcdoc 을 바꾸면 브라우저가 방문 기록을 한 칸씩 쌓아
+   뒤로가기가 우리 버퍼 대신 그 기록부터 소비한다. 아이프레임 요소를 새로 만들어
+   갈아끼우면 첫 로드가 '대체'로 처리돼 기록이 늘지 않는다. */
+function render(n){
+  if(!PAGES[n])return;CUR=n;
+  var old=document.getElementById('f');
+  var f=document.createElement('iframe');
+  f.id='f';
+  f.title='ROOKIE 루키';
+  f.setAttribute('allow','web-share; clipboard-write');
+  f.srcdoc=dec(PAGES[n])+NAV;
+  old.parentNode.replaceChild(f,old);
+}
 var GAMES_GUARD={'무한타석.html':1,'오늘의판정.html':1,'오늘의퀴즈.html':1,'오늘의선수.html':1,
                  '오늘의기록왕.html':1,'커넥션.html':1,'십자말풀이.html':1};
 /* 뒤로가기 — 화면과 상관없이 항상 '버퍼 한 칸' 위에 머문다.
