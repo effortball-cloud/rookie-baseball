@@ -598,10 +598,11 @@ setInterval(checkAway,1500);   /* 이벤트를 놓치는 브라우저 대비 안
           if(!document.hidden){ try{ reg.update(); }catch(e){} }
         });
       })['catch'](function(){});
-      /* 새 서비스워커가 자리를 잡으면 화면을 한 번만 다시 불러온다 */
-      var swapped=false;
+      /* 이미 쓰던 앱이 새 버전으로 갈릴 때만 화면을 한 번 다시 불러온다.
+         처음 설치될 때는 새로고침하지 않는다 — 그러면 열 때마다 다시 로드된다 */
+      var hadSW=!!navigator.serviceWorker.controller, swapped=false;
       navigator.serviceWorker.addEventListener('controllerchange', function(){
-        if(swapped) return; swapped=true;
+        if(!hadSW||swapped) return; swapped=true;
         location.reload();
       });
     });
