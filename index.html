@@ -253,16 +253,21 @@ window.addEventListener('popstate',function(){
       arm(now,'🔙 한 번 더 누르면 게임에서 나갑니다');
       return;
     }
-    STEP=0; render('홈.html'); pushBuf(); return;    /* 게임 → 홈 */
+    STEP=0; hideGuard(); render('홈.html'); pushBuf(); return;   /* 게임 → 홈 */
   }
   if(!armed(now)){
     arm(now,'🔙 한 번 더 누르면 앱이 닫혀요');
     return;
   }
-  STEP=0;
-  /* 여기서만 버퍼를 다시 만들지 않는다 — 남은 기록을 소비해 앱 밖으로 나간다 */
-  try{history.back();}catch(e){}
+  STEP=0; hideGuard();
+  /* 여기서만 버퍼를 다시 만들지 않는다 — 남은 기록을 소비해 앱 밖으로 나간다.
+     popstate 처리 도중에 곧바로 부르면 브라우저가 무시하므로 한 박자 미룬다 */
+  setTimeout(function(){try{history.back();}catch(e){}},0);
 });
+function hideGuard(){
+  var g=document.getElementById('backguard');
+  if(g){clearTimeout(g._t);g.style.opacity='0';}
+}
 function showGuard(msg){
   var g=document.getElementById('backguard');
   if(!g){
