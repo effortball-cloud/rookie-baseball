@@ -245,27 +245,46 @@ function render(n){
 var GAMES_GUARD={'무한타석.html':1,'마운드.html':1,'워닝트랙.html':1,'오늘의판정.html':1,
                  '오늘의퀴즈.html':1,'오늘의선수.html':1,'오늘의기록왕.html':1,
                  '커넥션.html':1,'십자말풀이.html':1};
-/* 뒤로가기 — 화면과 상관없이 항상 '버퍼 한 칸' 위에 머문다.
-   게임 중: 1회 안내 → 2회 홈 / 홈: 1회 안내 → 2회 앱 종료 (합쳐서 4회) */
-var STEP=0, stepAt=0, EXITING=false, exitTries=0;
-function leaveApp(){                 /* 브라우저가 만든 여분 기록까지 지나 앱 밖으로 */
-  EXITING=true; exitTries=0;
+/* ── 뒤로가기 ──
+   크롬(안드로이드)은 '사용자 탭 없이' pushState 로 쌓은 기록을 뒤로가기 버튼이 건너뛴다.
+   그래서 기록은 탭할 때만 쌓고, popstate 에서는 절대 pushState 하지 않는다.
+   화면마다 필요한 깊이: 홈 1 · 안내 페이지 2 · 게임 3.
+     홈        1회 안내 → 2회 종료
+     게임      1회 안내 → 2회 홈 → 3회 안내 → 4회 종료
+     안내 페이지 1회 홈 → 2회 안내 → 3회 종료
+   마지막 종료는 바닥에서 누르는 UI 뒤로가기라 브라우저가 알아서 나간다. */
+var STEP=0, stepAt=0, EXITING=false;
+function depth(){try{return (history.state&&history.state.rk===1)?(history.state.d|0):0;}catch(e){return 0;}}
+function wantDepth(){return CUR==='홈.html'?1:(GAMES_GUARD[CUR]?3:2);}
+/* 탭이 있을 때만 호출된다 — 여기서만 기록을 쌓는다 */
+function ensureBuf(){
+  EXITING=false;
+  var want=wantDepth(), guard=0;
+  while(depth()<want&&guard++<5){
+    try{history.pushState({rk:1,d:depth()+1},'');}catch(e){break;}
+  }
+}
+document.addEventListener('pointerdown',ensureBuf,true);
+document.addEventListener('keydown',ensureBuf,true);
+function armed(now){return STEP===1&&now-stepAt<3500;}
+function arm(now,msg,sticky){STEP=1;stepAt=now;showGuard(msg,sticky);}
+/* 홈에서 두 번째 뒤로가기 — 남은 칸을 스크립트로 밟고 지나가 앱 밖으로.
+   설치형 앱(바닥 아래가 없음)에선 마지막 back() 이 아무 일도 안 하고, 다음 UI 뒤로가기가 앱을 닫는다. */
+function leaveApp(){
+  EXITING=true; hideGuard();
   setTimeout(function(){try{history.back();}catch(e){}},0);
 }
-function pushBuf(){try{history.pushState({rk:1},'');}catch(e){}}
-function armed(now){return STEP===1&&now-stepAt<3500;}
-function arm(now,msg){STEP=1;stepAt=now;pushBuf();showGuard(msg);}
 
 function show(n){
   if(!PAGES[n])return;
-  STEP=0;                       /* 화면을 옮기면 안내 상태를 푼다 */
-  render(n);                    /* 기록은 버퍼 한 칸뿐이라 화면 이동으로 쌓지 않는다 */
+  STEP=0; hideGuard();
+  render(n);                    /* 화면 이동은 기록을 쌓지 않는다 — 탭 시점의 ensureBuf 가 깊이를 맞춘다 */
 }
 window.addEventListener('popstate',function(){
-  var now=Date.now();
-  if(EXITING){                       /* 나가는 중 — 남은 기록을 계속 밟고 지나간다 */
-    if(exitTries++<3){setTimeout(function(){try{history.back();}catch(e){}},0);}
-    else{EXITING=false;pushBuf();}   /* 못 나가면 원래대로 되돌린다 */
+  var now=Date.now(), d=depth();
+  if(EXITING){                       /* 나가는 중 — 바닥까지 계속 밟는다 */
+    if(d>0){setTimeout(function(){try{history.back();}catch(e){}},0);}
+    else{setTimeout(function(){try{history.back();}catch(e){}},0);EXITING=false;}
     return;
   }
   if(CUR!=='홈.html'){
@@ -273,19 +292,20 @@ window.addEventListener('popstate',function(){
       arm(now,'🔙 한 번 더 누르면 게임에서 나갑니다');
       return;
     }
-    STEP=0; hideGuard(); render('홈.html'); pushBuf(); return;   /* 게임 → 홈 */
+    STEP=0; hideGuard(); render('홈.html'); return;     /* 게임/안내 → 홈 */
   }
   if(!armed(now)){
-    arm(now,'🔙 한 번 더 누르면 앱이 닫혀요');
+    /* 바닥(d=0)에 닿았으면 다음 뒤로가기가 곧 종료다 — 안내를 사라지지 않게 둔다 */
+    arm(now,'🔙 한 번 더 누르면 앱이 닫혀요', d===0);
     return;
   }
-  STEP=0; hideGuard(); leaveApp();
+  STEP=0; leaveApp();
 });
 function hideGuard(){
   var g=document.getElementById('backguard');
   if(g){clearTimeout(g._t);g.style.opacity='0';}
 }
-function showGuard(msg){
+function showGuard(msg,sticky){
   var g=document.getElementById('backguard');
   if(!g){
     g=document.createElement('div');g.id='backguard';
@@ -298,12 +318,13 @@ function showGuard(msg){
   }
   g.textContent=msg||'🔙 한 번 더 누르면 게임에서 나갑니다';
   g.style.opacity='1';
-  clearTimeout(g._t);g._t=setTimeout(function(){g.style.opacity='0';},3200);
+  clearTimeout(g._t);
+  if(!sticky)g._t=setTimeout(function(){g.style.opacity='0';},3200);
 }
 window.addEventListener('message',function(e){
   if(!e.data)return;
-  if(e.data.rookieNav)show(e.data.rookieNav);
-  if(e.data.rookieTap)kickAudio();   /* 게임 화면 탭도 오디오 해금 시도 */
+  if(e.data.rookieNav){show(e.data.rookieNav);ensureBuf();}   /* 이동한 화면의 깊이로 맞춘다 */
+  if(e.data.rookieTap){kickAudio();ensureBuf();}           /* 게임 화면 탭 → 오디오 해금 + 버퍼 확인 */
   if(e.data.rookieSave)saveFromGame(e.data.rookieSave);
   if(e.data.rookieLang)render(CUR);  /* 언어 전환 → 현재 화면 다시 그리기 */
 });
@@ -324,8 +345,7 @@ function saveFromGame(d){
 (function(){
   var p=null;
   try{p=new URLSearchParams(location.search).get('p');}catch(e){}
-  try{history.replaceState({rk:0},'');}catch(e){}
-  pushBuf();                                      /* 어떤 화면이든 버퍼 한 칸 위에서 시작 */
+  /* 여기서 기록을 쌓지 않는다 — 탭 없이 쌓으면 크롬이 건너뛴다. 첫 탭에서 ensureBuf 가 쌓는다. */
   render(p&&PAGES[p]?p:'홈.html');
 })();
 
