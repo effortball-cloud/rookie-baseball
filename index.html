@@ -99,6 +99,26 @@
   @keyframes skipIn{to{opacity:1}}
   #skip:active{transform:scale(.96)}
 
+  /* ===== 하단 고정바 — 뒤로가기 버튼에 기대지 않는 확실한 길 ===== */
+  #rkbar{position:fixed;left:0;right:0;bottom:0;z-index:45;display:none;
+    padding:8px 12px calc(8px + env(safe-area-inset-bottom,0px));
+    background:rgba(10,33,21,.94);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+    border-top:1px solid rgba(255,255,255,.12);
+    font-family:"Pretendard","Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif}
+  #rkbar.on{display:flex;gap:8px}
+  #rkbar button{flex:1;min-height:46px;border:0;border-radius:13px;cursor:pointer;font-family:inherit;
+    font-size:14.5px;font-weight:800;letter-spacing:-.2px;transition:transform .08s}
+  #rkbar button:active{transform:scale(.97)}
+  #rkbar .home{background:#1c7c4a;color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.35)}
+  #rkbar .top{flex:0 0 auto;padding:0 16px;background:rgba(255,255,255,.12);color:#cfe3d7}
+  body.hasbar #mus{bottom:72px}
+  body.hasbar #musHint{bottom:10px}
+
+  /* ===== 진단 오버레이 (?dbg=1) ===== */
+  #rkdbg{position:fixed;left:6px;top:6px;z-index:9999;max-width:70vw;max-height:40vh;overflow:auto;
+    background:rgba(0,0,0,.78);color:#9fe3b6;font:11px/1.35 ui-monospace,Menlo,Consolas,monospace;
+    padding:6px 8px;border-radius:8px;white-space:pre-wrap;pointer-events:none;display:none}
+
   /* ===== 음악 컨트롤 ===== */
   #mus{position:fixed;right:14px;bottom:14px;z-index:40;
     font-family:"Pretendard","Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif}
@@ -209,6 +229,11 @@
 </div>
 <button id="skip" onclick="endIntro()">건너뛰기 ›</button>
 <iframe id="f" title="ROOKIE 루키" allow="web-share; clipboard-write"></iframe>
+<div id="rkbar" role="navigation" aria-label="하단 이동">
+  <button class="top" id="rkbar-top" type="button">↑</button>
+  <button class="home" id="rkbar-home" type="button">🏠 루키 홈으로</button>
+</div>
+<div id="rkdbg" aria-hidden="true"></div>
 <div id="mus">
   <div id="musHint"></div>
   <div id="musPanel">
@@ -241,6 +266,40 @@ function render(n){
   f.setAttribute('allow','web-share; clipboard-write');
   f.srcdoc=dec(PAGES[n])+NAV;
   old.parentNode.replaceChild(f,old);
+  updateBar();
+}
+/* 하단 고정바 — 홈이 아닌 화면에서만. 탭하면 즉시 홈 (상단 🏠 와 같다) */
+function isEn(){try{return localStorage.getItem('rookie.lang')==='en';}catch(e){return false;}}
+function updateBar(){
+  var b=document.getElementById('rkbar'); if(!b)return;
+  var on=CUR!=='홈.html';
+  b.classList.toggle('on',on);
+  document.body.classList.toggle('hasbar',on);
+  var h=document.getElementById('rkbar-home');
+  if(h)h.textContent=isEn()?'🏠 Back to home':'🏠 루키 홈으로';
+  var t=document.getElementById('rkbar-top');
+  if(t)t.setAttribute('aria-label',isEn()?'Scroll to top':'맨 위로');
+}
+document.addEventListener('DOMContentLoaded',function(){
+  var h=document.getElementById('rkbar-home'), t=document.getElementById('rkbar-top');
+  if(h)h.addEventListener('click',function(){show('홈.html');});
+  if(t)t.addEventListener('click',function(){
+    try{var f=document.getElementById('f');f.contentWindow.scrollTo({top:0,behavior:'smooth'});}catch(e){}
+  });
+});
+
+/* ── 진단 (?dbg=1) — 폰에서 뒤로가기가 왜 새는지 화면에서 본다 ── */
+var DBG=false;
+try{DBG=new URLSearchParams(location.search).get('dbg')==='1';}catch(e){}
+function dlog(m){
+  if(!DBG)return;
+  var d=document.getElementById('rkdbg'); if(!d)return;
+  d.style.display='block';
+  var ua=navigator.userActivation;
+  d.textContent+=(new Date().toTimeString().slice(3,8))+' '+m
+    +' | d='+depth()+' len='+history.length
+    +(ua?(' act='+(ua.isActive?'T':'f')+(ua.hasBeenActive?'S':'-')):'')+String.fromCharCode(10);
+  d.scrollTop=d.scrollHeight;
 }
 var GAMES_GUARD={'무한타석.html':1,'마운드.html':1,'워닝트랙.html':1,'오늘의판정.html':1,
                  '오늘의퀴즈.html':1,'오늘의선수.html':1,'오늘의기록왕.html':1,
@@ -259,10 +318,11 @@ function wantDepth(){return CUR==='홈.html'?1:(GAMES_GUARD[CUR]?3:2);}
 /* 탭이 있을 때만 호출된다 — 여기서만 기록을 쌓는다 */
 function ensureBuf(){
   EXITING=false;
-  var want=wantDepth(), guard=0;
+  var want=wantDepth(), guard=0, pushed=0;
   while(depth()<want&&guard++<5){
-    try{history.pushState({rk:1,d:depth()+1},'');}catch(e){break;}
+    try{history.pushState({rk:1,d:depth()+1},'');pushed++;}catch(e){break;}
   }
+  if(pushed)dlog('push x'+pushed+' ('+CUR+')');
 }
 document.addEventListener('pointerdown',ensureBuf,true);
 document.addEventListener('keydown',ensureBuf,true);
@@ -282,6 +342,7 @@ function show(n){
 }
 window.addEventListener('popstate',function(){
   var now=Date.now(), d=depth();
+  dlog('POP → '+CUR+(EXITING?' exiting':''));
   if(EXITING){                       /* 나가는 중 — 바닥까지 계속 밟는다 */
     if(d>0){setTimeout(function(){try{history.back();}catch(e){}},0);}
     else{setTimeout(function(){try{history.back();}catch(e){}},0);EXITING=false;}
@@ -347,6 +408,8 @@ function saveFromGame(d){
   try{p=new URLSearchParams(location.search).get('p');}catch(e){}
   /* 여기서 기록을 쌓지 않는다 — 탭 없이 쌓으면 크롬이 건너뛴다. 첫 탭에서 ensureBuf 가 쌓는다. */
   render(p&&PAGES[p]?p:'홈.html');
+  dlog('boot standalone='+(matchMedia('(display-mode: standalone)').matches?'Y':'n'));
+  window.addEventListener('pagehide',function(){dlog('PAGEHIDE');});
 })();
 
 
