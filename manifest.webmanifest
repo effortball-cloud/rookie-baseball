@@ -1,7 +1,7 @@
 {
   "name": "ROOKIE 루키",
   "short_name": "ROOKIE",
-  "description": "매일 새로운 야구 게임 — 판정 · 퀴즈 · 기록 대결 · 타격.",
+  "description": "매일 새로운 스포츠 게임 — 야구 판정 · 퀴즈 · 기록 대결 · 미니게임.",
   "lang": "ko",
   "dir": "ltr",
   "start_url": "./?src=pwa",
