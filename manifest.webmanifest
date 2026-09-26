@@ -23,6 +23,7 @@
   "shortcuts": [
     { "name": "오늘의 판정", "short_name": "판정", "url": "./?p=%EC%98%A4%EB%8A%98%EC%9D%98%ED%8C%90%EC%A0%95.html", "icons": [{ "src": "./icon-192.png", "sizes": "192x192" }] },
     { "name": "기록왕", "short_name": "기록왕", "url": "./?p=%EC%98%A4%EB%8A%98%EC%9D%98%EA%B8%B0%EB%A1%9D%EC%99%95.html", "icons": [{ "src": "./icon-192.png", "sizes": "192x192" }] },
-    { "name": "KBO 티켓 예매 가이드", "short_name": "티켓", "url": "./?p=%ED%8B%B0%EC%BC%93%EC%98%88%EB%A7%A4.html", "icons": [{ "src": "./icon-192.png", "sizes": "192x192" }] }
+    { "name": "KBO 티켓 예매 가이드", "short_name": "티켓", "url": "./?p=%ED%8B%B0%EC%BC%93%EC%98%88%EB%A7%A4.html", "icons": [{ "src": "./icon-192.png", "sizes": "192x192" }] },
+    { "name": "농구 (KBL)", "short_name": "농구", "url": "./?sport=basketball", "icons": [{ "src": "./icon-192.png", "sizes": "192x192" }] }
   ]
 }
