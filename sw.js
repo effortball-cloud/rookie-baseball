@@ -1,6 +1,8 @@
 /* ROOKIE service worker — 캐시 우선(즉시 열림) + 백그라운드 갱신 */
-const VERSION = '9c8b556aa66b';
+const VERSION = '28c046456b32';
 const CACHE   = 'rookie-' + VERSION;
+/* 바둑 AI 파일(go/)은 버전과 따로 오래 보관 — 새 버전을 올릴 때마다 4MB를 다시 받지 않게 */
+const GO_CACHE = 'rookie-go-v1';
 const ASSETS  = ['./', './index.html', './manifest.webmanifest', './preview.png',
                  './icon-192.png', './icon-512.png', './icon-maskable-512.png',
                  './apple-touch-icon.png', './icon.svg'];
@@ -12,7 +14,7 @@ self.addEventListener('install', e => {
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys()
-      .then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k))))
+      .then(ks => Promise.all(ks.filter(k => k !== CACHE && k.indexOf('rookie-go-') !== 0).map(k => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
@@ -28,6 +30,14 @@ self.addEventListener('fetch', e => {
   let url;
   try { url = new URL(req.url); } catch (_) { return; }
   if (url.origin !== location.origin) return;          /* 외부 요청은 건드리지 않는다 */
+
+  if (url.pathname.indexOf('/go/') >= 0) {            /* 바둑 AI: 캐시에 있으면 그대로, 없으면 받아서 보관 */
+    e.respondWith(caches.open(GO_CACHE).then(c => c.match(req).then(hit => hit || fetch(req).then(res => {
+      if (res && res.status === 200) c.put(req, res.clone()).catch(() => {});
+      return res;
+    }))));
+    return;
+  }
 
   e.respondWith(
     caches.match(req, { ignoreSearch: true }).then(hit => {
