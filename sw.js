@@ -1,5 +1,5 @@
 /* ROOKIE service worker — 캐시 우선(즉시 열림) + 백그라운드 갱신 */
-const VERSION = '998fb809f092';
+const VERSION = '2e078c321533';
 const CACHE   = 'rookie-' + VERSION;
 /* 바둑 AI 파일(go/)은 버전과 따로 오래 보관 — 새 버전을 올릴 때마다 4MB를 다시 받지 않게 */
 const GO_CACHE = 'rookie-go-v1';
