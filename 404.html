@@ -1,21 +1,18 @@
 <!doctype html>
 <html lang="ko"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ROOKIE B — 새 주소로 이동합니다</title>
+<title>ROOKIE B — rookieb.com 으로 이동합니다</title>
 <meta name="robots" content="noindex">
-<link rel="canonical" href="https://effortball-cloud.github.io/rookieb/">
-<meta http-equiv="refresh" content="0; url=https://effortball-cloud.github.io/rookieb/">
 <script>
-/* 루키 → ROOKIE B 주소 변경 (2026-10-07): /rookie-baseball/… → /rookieb/… 로 그대로 옮긴다 (?p=·?sport=·카카오 복귀 code 포함) */
-(function(){
-  var rest=location.pathname.replace(/^\/rookie-baseball\/?/,'');
-  location.replace('https://effortball-cloud.github.io/rookieb/'+rest+location.search+location.hash);
-})();
-/* 예전에 설치한 앱(PWA)의 서비스 워커를 정리 */
-if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){if(r.scope.indexOf('/rookie-baseball/')>=0)r.unregister();});});}
+/* 루키 비 주소 이전 (2026-10-11): 옛 주소로 들어오면 이 기기의 기록을 담아 https://rookieb.com 으로 보낸다 */
+function rbGo(){var d={},n=0;try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i),v=localStorage.getItem(k);if(/^rookie\./.test(k)&&!/^rookie\.(sb|kakao|naver|twa|migrated)$/.test(k)&&v!==null&&v.length<200000){d[k]=v;n++;}}}catch(e){}var rest=location.pathname.replace(/^\/(rookieb|rookie-baseball)(\/|$)/,'').replace(/^index\.html$/,'');location.replace('https://rookieb.com/'+rest+location.search+(n?'#rbmig='+encodeURIComponent(JSON.stringify(d)):''));}
+if(/^\/(rookieb|rookie-baseball)(\/|$)/.test(location.pathname)){
+  if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){if(/\/(rookieb|rookie-baseball)\//.test(r.scope))r.unregister();});});}
+  rbGo();
+}
 </script>
-<style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#123d29;color:#fff;font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;text-align:center}a{color:#e8cc8f}</style>
+<style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#123d29;color:#fff;
+font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;text-align:center;padding:0 20px}a{color:#e8cc8f}</style>
 </head><body>
-<p>루키가 <b>ROOKIE B(루키 비)</b>로 이름을 바꾸며 주소도 옮겼어요.<br>
-<a href="https://effortball-cloud.github.io/rookieb/">새 주소로 가기 →</a></p>
+<p>루키 비(ROOKIE B)는 <b>rookieb.com</b> 으로 옮겼어요.<br><a href="https://rookieb.com/">rookieb.com 으로 가기 →</a></p>
 </body></html>
